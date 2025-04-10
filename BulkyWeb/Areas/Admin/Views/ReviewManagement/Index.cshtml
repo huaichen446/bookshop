@@ -1,0 +1,103 @@
+﻿@model IEnumerable<Review>
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-primary bg-gradient text-light py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white">Управление комментариями</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="reviewTable">
+                <thead>
+                    <tr>
+                        <th>продукт</th>
+                        <th>пользователь</th>
+                        <th>заголовок</th>
+                        <th>счет</th>
+                        <th>состояние</th>
+                        <th>дата</th>
+                        <th>operate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var review in Model)
+                    {
+                        <tr>
+                            <td>@review.Product.Title</td>
+                            <td>@review.ApplicationUser.Name</td>
+                            <td>
+                                <span class="badge bg-info">@review.Title</span><br />
+                                <small>@review.Content</small>
+                            </td>
+                            <td>
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= review.Rating)
+                                    {
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-star text-warning"></i>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @if (review.IsApproved)
+                                {
+                                    <span class="badge bg-success">Проверено</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Ожидает рассмотрения</span>
+                                }
+                            </td>
+                            <td>@review.CreatedDate.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <div class="w-75 btn-group" role="group">
+                                    @if (!review.IsApproved)
+                                    {
+                                        <a asp-action="Approve" asp-route-id="@review.Id"
+                                           class="btn btn-success mx-2">
+                                            <i class="bi bi-check-lg"></i> проходить
+                                        </a>
+                                    }
+                                    <a asp-action="Delete" asp-route-id="@review.Id"
+                                       class="btn btn-danger mx-2" onclick="return confirm('Вы уверены, что хотите удалить этот комментарий?？')">
+                                        <i class="bi bi-trash"></i> удалить
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#reviewTable').DataTable({
+                "language": {
+                    "lengthMenu": "每页显示 _MENU_ 条记录",
+                    "zeroRecords": "没有找到匹配的记录",
+                    "info": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                    "infoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                    "infoFiltered": "(由 _MAX_ 项结果过滤)",
+                    "search": "搜索:",
+                    "paginate": {
+                        "first": "首页",
+                        "last": "末页",
+                        "next": "下一页",
+                        "previous": "上一页"
+                    }
+                }
+            });
+        });
+    </script>
+}

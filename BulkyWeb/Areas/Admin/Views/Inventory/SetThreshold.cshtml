@@ -1,0 +1,56 @@
+﻿<!-- Areas/Admin/Views/Inventory/SetThreshold.cshtml -->
+@model ThresholdViewModel
+
+<form method="post">
+    <input asp-for="ProductId" hidden />
+
+    <div class="card shadow border-0 mt-4 mb-4">
+        <div class="card-header bg-info bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">设置库存警告阈值 | Установка порога предупреждения о запасах</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="border p-3">
+                        <div class="form-group mb-3">
+                            <label class="form-label">产品名称 | Название продукта</label>
+                            <input asp-for="ProductName" class="form-control" readonly />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">当前警告阈值 | Текущий порог предупреждения</label>
+                            <input asp-for="CurrentThreshold" class="form-control" readonly />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="NewThreshold" class="form-label">新警告阈值 | Новый порог предупреждения</label>
+                            <input asp-for="NewThreshold" class="form-control" />
+                            <span asp-validation-for="NewThreshold" class="text-danger"></span>
+                            <small class="text-muted">
+                                当库存低于此值时系统将显示警告 | Система покажет предупреждение, когда запасы упадут ниже этого значения
+                            </small>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 col-md-3">
+                                <button type="submit" class="btn btn-info form-control">
+                                    <i class="bi bi-save"></i> 保存设置 | Сохранить
+                                </button>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a asp-action="Index" class="btn btn-outline-primary form-control">
+                                    返回 | Назад
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

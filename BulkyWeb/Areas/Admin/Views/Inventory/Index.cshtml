@@ -1,0 +1,78 @@
+﻿<!-- Areas/Admin/Views/Inventory/Index.cshtml -->
+@model IEnumerable<Product>
+
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-primary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Управление запасами</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6">
+                <a asp-action="LowStock" class="btn btn-warning">
+                    <i class="bi bi-exclamation-triangle"></i>Просмотреть товары с низким запасом
+                </a>
+            </div>
+        </div>
+
+        <table id="inventoryTable" class="table table-bordered table-striped" width="100%">
+            <thead>
+                <tr>
+                    <th>Заголовок</th>
+                    <th>ISBN</th>
+                    <th>категория</th>
+                    <th>Текущий инвентарь</th>
+                    <th>Порог предупреждения</th>
+                    <th>Продажи</th>
+                    <th>Последнее пополнение</th>
+                    <th>operate</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr class="@(product.StockQuantity <= product.LowStockThreshold ? "table-danger" : "")">
+                        <td>@product.Title</td>
+                        <td>@product.ISBN</td>
+                        <td>@product.Category.Name</td>
+                        <td>@product.StockQuantity</td>
+                        <td>@product.LowStockThreshold</td>
+                        <td>@product.TotalSaleCount</td>
+                        <td>@(product.LastRestockDate.HasValue ? product.LastRestockDate.Value.ToString("yyyy-MM-dd") : "未记录")</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Restock" asp-route-id="@product.Id" class="btn btn-success">
+                                    <i class="bi bi-plus-circle"></i> Пополнение запасов
+                                </a>
+                                <a asp-action="Adjust" asp-route-id="@product.Id" class="btn btn-secondary">
+                                    <i class="bi bi-pencil-square"></i> Настройка инвентаря
+                                </a>
+                                <a asp-action="SetThreshold" asp-route-id="@product.Id" class="btn btn-info">
+                                    <i class="bi bi-gear"></i> Установка порога
+                                </a>
+                                <a asp-action="StockHistory" asp-route-id="@product.Id" class="btn btn-primary">
+                                    <i class="bi bi-clock-history"></i> история
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#inventoryTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese.json"
+                }
+            });
+        });
+    </script>
+}

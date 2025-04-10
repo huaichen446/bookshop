@@ -1,0 +1,51 @@
+﻿<!-- Areas/Admin/Views/Inventory/LowStock.cshtml -->
+@model IEnumerable<Product>
+
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-warning bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Предупреждение о низком уровне запасов</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6">
+                <a asp-action="Index" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Вернуться к управлению запасами
+                </a>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Заголовок</th>
+                    <th>ISBN</th>
+                    <th>Текущий инвентарь</th>
+                    <th>Порог предупреждения</th>
+                    <th>Количество, отсутствующее на складе</th>
+                    <th>operate</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr>
+                        <td>@product.Title</td>
+                        <td>@product.ISBN</td>
+                        <td class="text-danger fw-bold">@product.StockQuantity</td>
+                        <td>@product.LowStockThreshold</td>
+                        <td>@(product.LowStockThreshold - product.StockQuantity)</td>
+                        <td>
+                            <a asp-action="Restock" asp-route-id="@product.Id" class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Пополнить сейчас
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+﻿<!-- Areas/Admin/Views/SalesAnalytics/BestSellers.cshtml -->
+@model IEnumerable<Product>
+
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-success bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">BestSellers</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        @* <div class="row pb-3">
+            <div class="col-6">
+                <a asp-action="Index" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> 返回销售分析
+                </a>
+            </div>
+        </div> *@
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Рейтинг</th>
+                    <th>Название</th>
+                    <th>автор</th>
+                    <th>Категория</th>
+                    <th>Продажи</th>
+                    <th>цена за единицу товара</th>
+                    <th>Общие продажи</th>
+                    <th>Текущий запас</th>
+                    <th>operate</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int rank = 1;
+                }
+                @foreach (var product in Model)
+                {
+                    <tr>
+                        <td>@(rank++)</td>
+                        <td>@product.Title</td>
+                        <td>@product.Author</td>
+                        <td>@product.Category.Name</td>
+                        <td>@product.TotalSaleCount</td>
+                        <td>@product.Price.ToString("c")</td>
+                        <td>@((product.TotalSaleCount * product.Price).ToString("c"))</td>
+                        <td class="@(product.StockQuantity <= product.LowStockThreshold ? "text-danger fw-bold" : "")">
+                            @product.StockQuantity
+                        </td>
+                        <td>
+                            <a asp-area="Admin" asp-controller="Inventory" asp-action="Restock" asp-route-id="@product.Id"
+                               class="btn btn-success btn-sm">
+                                <i class="bi bi-plus-circle"></i> Пополнение запасов
+                            </a>
+                            <a asp-area="Admin" asp-controller="Product" asp-action="Upsert" asp-route-id="@product.Id"
+                               class="btn btn-primary btn-sm">
+                                <i class="bi bi-pencil-square"></i> редактировать
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

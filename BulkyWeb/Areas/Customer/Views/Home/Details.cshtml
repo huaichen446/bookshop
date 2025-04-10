@@ -1,0 +1,230 @@
+﻿
+@model ShoppingCart
+@{
+    // 修改评论数据处理方式
+    var averageRating = ViewBag.AverageRating ?? 0;
+    var reviewsList = ViewBag.Reviews as IEnumerable<Review> ?? new List<Review>();
+    var reviewCount = reviewsList.Count(); // 提前计算评论数量
+}
+
+<form method="post">
+    <input hidden asp-for="ProductId" />
+    <div class="card shadow border-0 mt-4 mb-4">
+        <div class="card-header bg-secondary bg-gradient text-light py-4">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h3 class="text-white text-uppercase">@Model.Product.Title</h3>
+                    <p class="text-white-50 fw-semibold mb-0">by @Model.Product.Author</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="py-3">
+                <div class="row">
+                    <div class="col-6 col-md-2 offset-lg-1 pb-1">
+                        <a asp-action="Index" class="btn btn-outline-primary bg-gradient mb-5 fw-semibold btn-sm text-uppercase">
+                            <small>Back to home</small>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-lg-3 offset-lg-1 text-center mb-3">
+
+
+
+                        @if (Model.Product.ProductImages != null && Model.Product.ProductImages.Count > 0) {
+                            <div id="carouselExampleIndicators" class="carousel  slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+
+                                    @foreach(var imageWithIndex in 
+                                    Model.Product.ProductImages
+                                   .Select((image, index) => new { Image = image, Index = index })) {
+                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@imageWithIndex.Index" 
+                                        class="@(imageWithIndex.Index==0?"active":"")" aria-current="true" aria-label="Slide 1"></button>
+                                    }
+
+                                   
+                                </div>
+                                <div class="carousel-inner">
+                                    @foreach (var imageWithIndex in
+                                   Model.Product.ProductImages
+                                   .Select((image, index) => new { Image = image, Index = index })) {
+                                        <div class="@(imageWithIndex.Index==0?"carousel-item active":"carousel-item")">
+                                            <img src="@imageWithIndex.Image.ImageUrl" class="d-block w-100" alt="...">
+                                    </div>
+                                   }
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+
+                        }
+
+                    </div>
+                    <div class="col-12 col-lg-6 offset-lg-1">
+
+                        <div class="col-12 col-md-6 pb-4">
+                            <span class="badge">@Model.Product.Category.Name</span>
+                        </div>
+                        <div class="row ps-2">
+                            <h6 class="text-dark text-opacity-50 ">ISBN : @Model.Product.ISBN</h6>
+                        </div>
+                        <div class="row ps-2">
+                            <h6 class="text-dark text-opacity-50  pb-2">
+                                List Price:
+                                <span class="text-decoration-line-through">
+                                    @Model.Product.ListPrice.ToString("c")
+                                </span>
+                            </h6>
+                        </div>
+                        <div class="row text-center ps-2">
+                            <div class="p-1 col-3 col-lg-2 bg-white border-bottom">
+                                <div class="text-dark text-opacity-50 fw-semibold">Quantity</div>
+                            </div>
+                            <div class="p-1 col-3 col-lg-2 bg-white border-bottom">
+                                <div class="text-dark text-opacity-50 fw-semibold">1-50</div>
+                            </div>
+                            <div class="p-1 col-3 col-lg-2 bg-white border-bottom">
+                                <div class="text-dark text-opacity-50 fw-semibold">51-100</div>
+                            </div>
+                            <div class="p-1 col-3 col-lg-2 bg-white border-bottom">
+                                <div class="text-dark text-opacity-50 fw-semibold">100+</div>
+                            </div>
+                        </div>
+                        <div class="row text-center ps-2">
+                            <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
+                                <div>Price</div>
+                            </div>
+                            <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
+                                <div>@Model.Product.Price.ToString("c")</div>
+                            </div>
+                            <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
+                                <div>@Model.Product.Price50.ToString("c")</div>
+                            </div>
+                            <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
+                                <div>@Model.Product.Price100.ToString("c")</div>
+                            </div>
+                        </div>
+                        <div class="row pl-2 my-3">
+                            <p class="text-secondary lh-sm">@Html.Raw(Model.Product.Description)</p>
+                        </div>
+                        <div class="row pl-2 mb-3">
+                            <div class="col-md-4">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text bg-primary text-white border-0 fw-semibold"
+                                          id="inputGroup-sizing-default">
+                                        Count
+                                    </span>
+                                    <input asp-for="Count" type="number" value="1" class="form-control text-end"
+                                           aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" />
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-md-6 pb-1">
+                                <button type="submit"
+                                        class="btn btn-primary bg-gradient  w-100 py-2 text-uppercase fw-semibold">
+                                    Add to Cart 
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="pb-2">
+    @if (Model.Product.StockQuantity > 0)
+    {
+        <span class="badge bg-success">В наличии</span>
+        <span>Количество на складе: @Model.Product.StockQuantity</span>
+    }
+    else
+    {
+        <span class="badge bg-danger">распродано</span>
+    }
+</div>
+
+<!-- 评分显示部分 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h4>Отзывы клиентов</h4>
+        <div class="d-flex align-items-center">
+            <div class="rating-stars">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    if (i <= Math.Round(averageRating))
+                    {
+                        <i class="bi bi-star-fill text-warning"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-star text-warning"></i>
+                    }
+                }
+            </div>
+            <!-- 修改为使用提前计算的评论数量 -->
+            <span class="ms-2">@averageRating.ToString("0.0") 分 (@reviewCount )</span>
+        </div>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-area="Customer" asp-controller="Review" asp-action="Create"
+               asp-route-productId="@Model.Product.Id" class="btn btn-primary mt-2">
+                Написать отзыв
+            </a>
+        }
+    </div>
+</div>
+
+<!-- 评论列表部分 -->
+<div class="row mt-4">
+    <div class="col-12">
+        @if (reviewsList.Any())
+        {
+            foreach (var review in reviewsList)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title">@review.Title</h5>
+                            <div>
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= review.Rating)
+                                    {
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-star text-warning"></i>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            By @review.ApplicationUser.Name on @review.CreatedDate.ToString("yyyy-MM-dd")
+                        </h6>
+                        <p class="card-text">@review.Content</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Пока нет комментариев, будьте первым, кто оставит комментарий!</p>
+        }
+    </div>
+</div>
+
+

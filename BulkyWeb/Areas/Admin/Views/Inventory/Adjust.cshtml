@@ -1,0 +1,86 @@
+﻿@model AdjustStockViewModel
+
+<form method="post">
+    <input asp-for="ProductId" hidden />
+
+    <div class="card shadow border-0 mt-4 mb-4">
+        <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">Корректировка запасов</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="border p-3 rounded">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Название продукта</label>
+                            <input asp-for="ProductName" class="form-control" readonly />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">Текущий запас</label>
+                            <input asp-for="CurrentStock" class="form-control" readonly />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="NewStockQuantity" class="form-label">Новое количество на складе</label>
+                            <input asp-for="NewStockQuantity" class="form-control" />
+                            <span asp-validation-for="NewStockQuantity" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Reason" class="form-label">Причина корректировки</label>
+                            <textarea asp-for="Reason" class="form-control" rows="3"
+                                      placeholder="Введите причину корректировки запасов"></textarea>
+                            <span asp-validation-for="Reason" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Внимание: Эта операция напрямую устанавливает конкретное количество запасов продукта, а не увеличивает или уменьшает запасы. Корректировка запасов будет записана в системе.
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 col-md-3">
+                                <button type="submit" class="btn btn-secondary form-control">
+                                    <i class="bi bi-check2-circle"></i> Подтвердить
+                                </button>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a asp-action="Index" class="btn btn-outline-primary form-control">
+                                    <i class="bi bi-arrow-left"></i> Назад
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            // 当新库存数量改变时，显示变化预览
+            $('#NewStockQuantity').on('input', function () {
+                var currentStock = parseInt($('#CurrentStock').val()) || 0;
+                var newStock = parseInt($(this).val()) || 0;
+                var change = newStock - currentStock;
+
+                if (change > 0) {
+                    $('#stockChangePreview').html(`<span class="text-success">+${change}</span>`);
+                } else if (change < 0) {
+                    $('#stockChangePreview').html(`<span class="text-danger">${change}</span>`);
+                } else {
+                    $('#stockChangePreview').html(`<span class="text-secondary">无变化 / Без изменений</span>`);
+                }
+            });
+        });
+    </script>
+}

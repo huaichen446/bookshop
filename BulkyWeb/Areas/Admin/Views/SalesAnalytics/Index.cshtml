@@ -1,0 +1,255 @@
+﻿<div class="card shadow border-0 my-4">
+    <div class="card-header bg-primary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">销售分析</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">销售趋势</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label>时间范围</label>
+                            <div class="input-group">
+                                <input type="date" id="startDate" class="form-control" />
+                                <span class="input-group-text">至</span>
+                                <input type="date" id="endDate" class="form-control" />
+                                <button id="refreshTrend" class="btn btn-outline-primary">更新</button>
+                            </div>
+                        </div>
+                        <canvas id="salesTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header">
+                        <h5 class="card-title">类别销售占比</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="categorySalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card shadow">
+                    <div class="card-header d-flex justify-content-between">
+                        <h5 class="card-title">销售绩效</h5>
+                        <div>
+                            <a asp-action="BestSellers" class="btn btn-outline-primary">查看畅销书籍</a>
+                            <a asp-action="InventoryTurnover" class="btn btn-outline-success">库存周转分析</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">总销量</h5>
+                                        <h3 id="totalSales">加载中...</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">总收入</h5>
+                                        <h3 id="totalRevenue">加载中...</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">平均订单金额</h5>
+                                        <h3 id="avgOrderValue">加载中...</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">订单数</h5>
+                                        <h3 id="orderCount">加载中...</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            // 设置默认日期范围（过去3个月）
+            var today = new Date();
+            var threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(today.getMonth() - 3);
+
+            $('#startDate').val(formatDate(threeMonthsAgo));
+            $('#endDate').val(formatDate(today));
+
+            // 加载初始数据
+            loadSalesTrendData();
+            loadCategorySalesData();
+
+            // 刷新按钮事件
+            $('#refreshTrend').click(function () {
+                loadSalesTrendData();
+            });
+
+            // 格式化日期
+            function formatDate(date) {
+                var month = (date.getMonth() + 1).toString().padStart(2, '0');
+                var day = date.getDate().toString().padStart(2, '0');
+                return `${date.getFullYear()}-${month}-${day}`;
+            }
+
+            // 加载销售趋势数据
+            function loadSalesTrendData() {
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+
+                $.ajax({
+                    url: '@Url.Action("SalesTrendData")',
+                    data: { startDate: startDate, endDate: endDate },
+                    success: function (data) {
+                        renderSalesTrendChart(data);
+
+                        // 计算总收入
+                        var totalRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
+                        $('#totalRevenue').text('¥' + totalRevenue.toFixed(2));
+                        $('#orderCount').text(data.length);
+                        $('#avgOrderValue').text('¥' + (data.length > 0 ? (totalRevenue / data.length).toFixed(2) : '0.00'));
+                    }
+                });
+            }
+
+            // 渲染销售趋势图表
+            function renderSalesTrendChart(data) {
+                var ctx = document.getElementById('salesTrendChart').getContext('2d');
+
+                // 如果已存在图表，先销毁
+                if (window.salesTrendChart) {
+                    window.salesTrendChart.destroy();
+                }
+
+                window.salesTrendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(item => item.date),
+                        datasets: [{
+                            label: '销售额',
+                            data: data.map(item => item.revenue),
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '金额 (¥)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '日期'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 加载类别销售数据
+            function loadCategorySalesData() {
+                $.ajax({
+                    url: '@Url.Action("CategorySalesData")',
+                    success: function (data) {
+                        renderCategorySalesChart(data);
+
+                        // 计算总销量
+                        var totalSales = data.reduce((sum, item) => sum + item.count, 0);
+                        $('#totalSales').text(totalSales);
+                    }
+                });
+            }
+
+            // 渲染类别销售占比图表
+            function renderCategorySalesChart(data) {
+                var ctx = document.getElementById('categorySalesChart').getContext('2d');
+
+                // 如果已存在图表，先销毁
+                if (window.categorySalesChart) {
+                    window.categorySalesChart.destroy();
+                }
+
+                window.categorySalesChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.map(item => item.category),
+                        datasets: [{
+                            label: '销售额',
+                            data: data.map(item => item.revenue),
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)',
+                                'rgba(255, 159, 64, 0.7)',
+                                'rgba(199, 199, 199, 0.7)',
+                                'rgba(83, 102, 255, 0.7)',
+                                'rgba(40, 159, 64, 0.7)',
+                                'rgba(210, 199, 199, 0.7)'
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        var label = context.label || '';
+                                        var value = context.raw || 0;
+                                        var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        var percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        return label + ': ' + value.toFixed(2) + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,52 @@
+﻿/* Base mobile-first styles */
+@media (max-width: 768px) {
+    /* Header adjustments */
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+
+    .navbar-toggler {
+        padding: .25rem .5rem;
+    }
+
+    /* Table adjustments */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    /* Forms adjustment */
+    .form-control {
+        font-size: 1rem;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: .375rem .75rem;
+        font-size: .9rem;
+    }
+
+    /* Container padding */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    /* Product cards */
+    .card-img-top {
+        height: 180px;
+        object-fit: cover;
+    }
+
+    /* Shopping cart */
+    .shopping-cart .product-details {
+        padding-left: 0;
+    }
+}
+
+/* Medium devices (tablets) */
+@media (min-width: 769px) and (max-width: 992px) {
+    /* Adjustments for tablets */
+    .card-img-top {
+        height: 200px;
+    }
+}

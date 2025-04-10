@@ -1,0 +1,167 @@
+﻿<!-- Areas/Admin/Views/Inventory/StockHistory.cshtml -->
+@model ProductStockViewModel
+
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-primary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">库存历史记录 | История запасов</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6">
+                <a asp-action="Index" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> 返回库存管理 | Вернуться к управлению запасами
+                </a>
+            </div>
+        </div>
+
+        <!-- 产品信息卡片 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">产品信息 | Информация о продукте</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>书名 | Название:</strong> @Model.Product.Title</p>
+                        <p><strong>ISBN:</strong> @Model.Product.ISBN</p>
+                        <p><strong>作者 | Автор:</strong> @Model.Product.Author</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>当前库存 | Текущий запас:</strong> @Model.Product.StockQuantity</p>
+                        <p><strong>警告阈值 | Порог предупреждения:</strong> @Model.Product.LowStockThreshold</p>
+                        <p><strong>总销量 | Общие продажи:</strong> @Model.Product.TotalSaleCount</p>
+                        <p>
+                            <strong>上次补货 | Последнее пополнение:</strong>
+                            @(Model.Product.LastRestockDate.HasValue ? Model.Product.LastRestockDate.Value.ToString("yyyy-MM-dd") : "未记录 | Не зарегистрировано")
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录表格 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">库存变动历史 | История изменения запасов</h5>
+            </div>
+            <div class="card-body">
+                <table id="historyTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>日期时间 | Дата/Время</th>
+                            <th>操作类型 | Тип операции</th>
+                            <th>变动数量 | Изменение</th>
+                            <th>操作人员 | Оператор</th>
+                            <th>备注 | Примечания</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var history in Model.StockHistories)
+                        {
+                            <tr>
+                                <td>@history.Date.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>
+                                    @{
+                                        string actionClass = "";
+                                        string actionText = "";
+                                        string actionTextRu = "";
+
+                                        switch (history.Action)
+                                        {
+                                            case "Restock":
+                                                actionClass = "bg-success";
+                                                actionText = "补货";
+                                                actionTextRu = "Пополнение";
+                                                break;
+                                            case "Sale":
+                                                actionClass = "bg-primary";
+                                                actionText = "销售";
+                                                actionTextRu = "Продажа";
+                                                break;
+                                            case "Adjustment":
+                                                actionClass = "bg-warning";
+                                                actionText = "调整";
+                                                actionTextRu = "Корректировка";
+                                                break;
+                                            default:
+                                                actionClass = "bg-secondary";
+                                                actionText = "其他";
+                                                actionTextRu = "Другое";
+                                                break;
+                                        }
+                                    }
+                                    <span class="badge @actionClass">@actionText | @actionTextRu</span>
+                                </td>
+                                <td class="@(history.QuantityChanged > 0 ? "text-success" : "text-danger")">
+                                    @(history.QuantityChanged > 0 ? "+" : "")@history.QuantityChanged
+                                </td>
+                                <td>@history.ApplicationUser.Name</td>
+                                <td>@(string.IsNullOrEmpty(history.Notes) ? "--" : history.Notes)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 统计报表 -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">库存统计 | Статистика запасов</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5>总补货量 | Всего пополнено</h5>
+                                <h3>@Model.StockHistories.Where(x => x.Action == "Restock").Sum(x => x.QuantityChanged)</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h5>总销售量 | Всего продано</h5>
+                                <h3>@Math.Abs(Model.StockHistories.Where(x => x.Action == "Sale").Sum(x => x.QuantityChanged))</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h5>总调整量 | Всего скорректировано</h5>
+                                <h3>@Model.StockHistories.Where(x => x.Action == "Adjustment").Sum(x => x.QuantityChanged)</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h5>补货次数 | Кол-во пополнений</h5>
+                                <h3>@Model.StockHistories.Count(x => x.Action == "Restock")</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#historyTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese.json"
+                },
+                "order": [[0, "desc"]]
+            });
+        });
+    </script>
+}

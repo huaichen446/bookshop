@@ -1,0 +1,57 @@
+﻿<!-- Areas/Admin/Views/Inventory/Restock.cshtml -->
+@model RestockViewModel
+
+<form method="post">
+    <input asp-for="ProductId" hidden />
+
+    <div class="card shadow border-0 mt-4 mb-4">
+        <div class="card-header bg-success bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">补充库存</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="border p-3">
+                        <div class="form-group mb-3">
+                            <label class="form-label">产品名称</label>
+                            <input asp-for="ProductName" class="form-control" readonly />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">当前库存</label>
+                            <input asp-for="CurrentStock" class="form-control" readonly />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="QuantityToAdd" class="form-label"></label>
+                            <input asp-for="QuantityToAdd" class="form-control" />
+                            <span asp-validation-for="QuantityToAdd" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 col-md-3">
+                                <button type="submit" class="btn btn-success form-control">
+                                    <i class="bi bi-plus-circle"></i> 确认补货
+                                </button>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a asp-action="Index" class="btn btn-outline-primary form-control">
+                                    返回
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Review>
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-primary bg-gradient text-light py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white">Комментарии для рассмотрения</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>предложения</th>
+                        <th>пользователь</th>
+                        <th>Надпись</th>
+                        <th>оценка</th>
+                        <th>даты</th>
+                        <th>буровая установка</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var review in Model)
+                    {
+                        <tr>
+                            <td>@review.Product.Title</td>
+                            <td>@review.ApplicationUser.Name</td>
+                            <td>
+                                <span class="badge bg-info">@review.Title</span><br />
+                                <small>@review.Content</small>
+                            </td>
+                            <td>
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= review.Rating)
+                                    {
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-star text-warning"></i>
+                                    }
+                                }
+                            </td>
+                            <td>@review.CreatedDate.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <div class="w-75 btn-group" role="group">
+                                    <a asp-action="Approve" asp-route-id="@review.Id"
+                                       class="btn btn-success mx-2">
+                                        <i class="bi bi-check-lg"></i> get through
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@review.Id"
+                                       class="btn btn-danger mx-2">
+                                        <i class="bi bi-trash"></i> removing
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

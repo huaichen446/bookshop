@@ -1,0 +1,108 @@
+﻿@model BulkyBook.Models.Review
+
+
+<!-- 提交评论的表单 -->
+<form method="post" asp-area="Customer" asp-controller="Review" asp-action="Create">
+
+    <input asp-for="ProductId" hidden />
+
+    <div class="card shadow border-0 mt-4 mb-4">
+        <div class="card-header bg-secondary bg-gradient text-light py-4">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h3 class="text-white text-uppercase">@ViewBag.ProductTitle</h3>
+                    <p class="text-white-50 fw-semibold mb-0">添加您的评价</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="py-3">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="border p-3 rounded">
+                            <div class="form-floating py-2 col-12">
+                                <input asp-for="Title" class="form-control border-0 shadow" />
+                                <label asp-for="Title">评价标题</label>
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+                            <div class="form-floating py-2 col-12">
+                                <textarea asp-for="Content" class="form-control border-0 shadow" style="height: 150px;"></textarea>
+                                <label asp-for="Content">评价内容</label>
+                                <span asp-validation-for="Content" class="text-danger"></span>
+                            </div>
+                            <div class="py-2 col-12">
+                                <label>评分</label>
+                                <div class="rating">
+                                    <input type="radio" asp-for="Rating" value="5" id="5" checked /><label for="5">☆</label>
+                                    <input type="radio" asp-for="Rating" value="4" id="4" /><label for="4">☆</label>
+                                    <input type="radio" asp-for="Rating" value="3" id="3" /><label for="3">☆</label>
+                                    <input type="radio" asp-for="Rating" value="2" id="2" /><label for="2">☆</label>
+                                    <input type="radio" asp-for="Rating" value="1" id="1" /><label for="1">☆</label>
+                                </div>
+                                <span asp-validation-for="Rating" class="text-danger"></span>
+                            </div>
+                            <div class="row pt-2">
+                                <div class="col-6 col-md-3">
+                                    <button type="submit" class="btn btn-primary form-control">提交评价</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- 将返回按钮放在表单外部，确保使用GET请求 -->
+<div class="row mt-2">
+    <div class="col-6 col-md-3">
+        <a asp-area="Customer" asp-controller="Home" asp-action="Details"
+           asp-route-productId="@ViewBag.ProductId" class="btn btn-outline-primary form-control">
+            返回
+        </a>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+        .rating:not(:checked) > input {
+            position: absolute;
+            clip: rect(0,0,0,0);
+        }
+        .rating:not(:checked) > label {
+            float: right;
+            width: 1em;
+            padding: 0 .1em;
+            overflow: hidden;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 200%;
+            line-height: 1.2;
+            color: #ddd;
+        }
+        .rating:not(:checked) > label:before {
+            content: '★ ';
+        }
+        .rating > input:checked ~ label {
+            color: #f70;
+        }
+        .rating:not(:checked) > label:hover,
+        .rating:not(:checked) > label:hover ~ label {
+            color: gold;
+        }
+        .rating > input:checked + label:hover,
+        .rating > input:checked + label:hover ~ label,
+        .rating > input:checked ~ label:hover,
+        .rating > input:checked ~ label:hover ~ label,
+        .rating > label:hover ~ input:checked ~ label {
+            color: #ea0;
+        }
+    </style>
+}

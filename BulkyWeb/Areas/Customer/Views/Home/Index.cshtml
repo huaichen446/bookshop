@@ -1,0 +1,216 @@
+﻿@* @model IEnumerable<Product>
+
+<div class="row pb-3">
+    @foreach (var product in Model)
+    {
+        <div class="col-lg-3 col-sm-6">
+            <div class="row p-2">
+                <div class="col-12 p-1">
+                    <div class="card border-0 p-3 shadow  border-top border-5 rounded"> 
+                        @if(product.ProductImages!=null && product.ProductImages.Count() > 0) {
+                            <img src="@product.ProductImages.FirstOrDefault().ImageUrl" class="card-img-top rounded" />
+                        }
+                        else {
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                        }
+                        
+                        <div class="card-body pb-0">
+                            <div class="pl-1">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@product.Title</p>
+                                <p class="card-title text-warning text-center">by <b>@product.Author</b></p>
+                            </div>
+                            <div class="pl-1">
+                                <p class="text-dark text-opacity-75 text-center mb-0">
+                                    List Price: 
+                                    <span class="text-decoration-line-through">
+                                        @product.ListPrice.ToString("c")
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="pl-1">
+                                <p class="text-dark text-opacity-75 text-center">As low as: 
+                                    <span>
+                                        @product.Price100.ToString("c")
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <a asp-action="Details"
+                            asp-route-productId="@product.Id"
+                            class="btn btn-primary bg-gradient border-0 form-control">
+                                Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div> *@
+
+@model BulkyBook.Models.ViewModels.ProductSearchVM
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+    <div class="row pb-3">
+        <div class="col-12">
+            <form method="get" asp-action="Index" asp-controller="Home" asp-area="Customer">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <div class="row">
+                            <div class="col-6">
+                                <h4 class="pt-2">Search Books</h4>
+                            </div>
+                            <div class="col-6 text-end">
+                                <button type="button" class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#searchPanel">
+                                    <i class="bi bi-chevron-down"></i> Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body collapse show" id="searchPanel">
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input asp-for="SearchTerm" class="form-control" placeholder="Search for books...">
+                                    <select asp-for="SearchField" asp-items="Model.SearchFieldList" class="form-select w-25"></select>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex">
+                                    <select asp-for="SortBy" asp-items="Model.SortByList" class="form-select me-2">
+                                        <option value="">Sort By</option>
+                                    </select>
+                                    <div class="form-check form-switch ms-2 pt-2">
+                                        <input asp-for="SortDescending" class="form-check-input" type="checkbox">
+                                        <label asp-for="SortDescending" class="form-check-label">Descending</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="CategoryId" class="form-label">Category</label>
+                                <select asp-for="CategoryId" asp-items="Model.CategoryList" class="form-select">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="MinPrice" class="form-label">Min Price</label>
+                                <input asp-for="MinPrice" class="form-control" type="number" min="0" step="0.01">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="MaxPrice" class="form-label">Max Price</label>
+                                <input asp-for="MaxPrice" class="form-control" type="number" min="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                <a asp-action="Index" class="btn btn-outline-secondary">Clear Filters</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row pb-3">
+        @foreach (var product in Model.Products)
+        {
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="col-12 p-1">
+                        <div class="card border-0 p-3 shadow border-top border-5 rounded">
+                            @if (product.ProductImages != null && product.ProductImages.Count() > 0)
+                            {
+                                <img src="@product.ProductImages.FirstOrDefault().ImageUrl" class="card-img-top rounded" />
+                            }
+                            else
+                            {
+                                <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                            }
+                            <div class="card-body pb-0">
+                                <div class="pl-1">
+                                    <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@product.Title</p>
+                                    <p class="card-title text-warning text-center">by <b>@product.Author</b></p>
+                                </div>
+                                <div class="pl-1">
+                                    <p class="text-dark text-opacity-75 text-center mb-0">
+                                        List Price: <span class="text-decoration-line-through">@product.ListPrice.ToString("c")</span>
+                                    </p>
+                                </div>
+                                <div class="pl-1">
+                                    <p class="text-dark text-opacity-75 text-center">As low as: <span>@product.Price100.ToString("c")</span></p>
+                                </div>
+                            </div>
+                            <div>
+                                <a asp-action="Details" asp-route-productId="@product.Id" class="btn btn-primary bg-gradient border-0 form-control">
+                                    Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row pt-3 pb-3">
+    <div class="col-12">
+        @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.CategoryId.HasValue || Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
+        {
+            <div class="alert alert-info">
+                <span>Found @Model.Products.Count() products</span>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                {
+                    <span> matching "@Model.SearchTerm"</span>
+                }
+
+                @if (Model.CategoryId.HasValue && Model.CategoryId > 0)
+                {
+                    var category = Model.CategoryList.FirstOrDefault(c => c.Value == Model.CategoryId.ToString());
+                    <span> in category "@category?.Text"</span>
+                }
+
+                @if (Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
+                {
+                    <span>
+                        with price range
+                        @(Model.MinPrice?.ToString("c") ?? "$0") -
+                        @(Model.MaxPrice?.ToString("c") ?? "and above")
+                    </span>
+                }
+            </div>
+        }
+
+        @if (!Model.Products.Any())
+        {
+            <div class="alert alert-warning">
+                <p>No products found matching your criteria.</p>
+                <p>Try adjusting your search terms or filters.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Auto-submit form when category, sort or price range changes
+        $('#CategoryId, #SortBy, #SortDescending').change(function() {
+            $(this).closest('form').submit();
+        });
+
+        // Initialize price range slider if needed
+        // This is optional and would require additional JS libraries
+    });
+</script>
+

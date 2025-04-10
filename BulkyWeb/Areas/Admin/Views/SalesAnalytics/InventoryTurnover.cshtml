@@ -1,0 +1,183 @@
+﻿<!-- Areas/Admin/Views/SalesAnalytics/InventoryTurnover.cshtml -->
+@model IEnumerable<ProductTurnoverViewModel>
+
+<div class="card shadow border-0 my-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">库存周转率分析 | Анализ оборачиваемости запасов</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6">
+                <a asp-action="Index" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> 返回销售分析 | Вернуться к анализу продаж
+                </a>
+            </div>
+            <div class="col-6 text-end">
+                <h5>
+                    <span class="badge bg-info">库存周转率 = 销售量 / 平均库存 | Оборачиваемость = Продажи / Средний запас</span>
+                </h5>
+            </div>
+        </div>
+        
+        <table id="turnoverTable" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>书名 | Название</th>
+                    <th>类别 | Категория</th>
+                    <th>当前库存 | Текущий запас</th>
+                    <th>总销量 | Общие продажи</th>
+                    <th>周转率 | Оборачиваемость</th>
+                    <th>状态 | Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Title</td>
+                        <td>@item.Category</td>
+                        <td>@item.CurrentStock</td>
+                        <td>@item.TotalSales</td>
+                        <td>@item.TurnoverRate.ToString("F2")</td>
+                        <td>
+                            @{
+                                string badgeClass;
+                                string statusText;
+                                string statusTextRu;
+                                
+                                if (item.TurnoverRate >= 3)
+                                {
+                                    badgeClass = "bg-success";
+                                    statusText = "高周转率";
+                                    statusTextRu = "Высокая оборачиваемость";
+                                }
+                                else if (item.TurnoverRate >= 1)
+                                {
+                                    badgeClass = "bg-info";
+                                    statusText = "良好周转";
+                                    statusTextRu = "Хорошая оборачиваемость";
+                                }
+                                else if (item.TurnoverRate > 0)
+                                {
+                                    badgeClass = "bg-warning";
+                                    statusText = "低周转率";
+                                    statusTextRu = "Низкая оборачиваемость";
+                                }
+                                else
+                                {
+                                    badgeClass = "bg-danger";
+                                    statusText = "无销售";
+                                    statusTextRu = "Нет продаж";
+                                }
+                            }
+                            
+                            <span class="badge @badgeClass">@statusText | @statusTextRu</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        
+        <!-- 周转率分析图表 -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>库存周转率分布 | Распределение оборачиваемости запасов</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="turnoverChart" style="height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#turnoverTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Chinese.json"
+                },
+                "order": [[4, "desc"]]
+            });
+            
+            // 准备图表数据
+            var highTurnover = 0;
+            var goodTurnover = 0;
+            var lowTurnover = 0;
+            var noSales = 0;
+            
+            @foreach (var item in Model)
+            {
+                <text>
+                if (@item.TurnoverRate >= 3) highTurnover++;
+                else if (@item.TurnoverRate >= 1) goodTurnover++;
+                else if (@item.TurnoverRate > 0) lowTurnover++;
+                else noSales++;
+                </text>
+            }
+            
+            var ctx = document.getElementById('turnoverChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['高周转率 | Высокая', '良好周转 | Хорошая', '低周转率 | Низкая', '无销售 | Нет продаж'],
+                    datasets: [{
+                        label: '产品数量 | Количество продуктов',
+                        data: [highTurnover, goodTurnover, lowTurnover, noSales],
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.7)',  // 绿色 - 高
+                            'rgba(23, 162, 184, 0.7)', // 蓝色 - 良好
+                            'rgba(255, 193, 7, 0.7)',  // 黄色 - 低
+                            'rgba(220, 53, 69, 0.7)'   // 红色 - 无
+                        ],
+                        borderColor: [
+                            'rgb(40, 167, 69)',
+                            'rgb(23, 162, 184)',
+                            'rgb(255, 193, 7)',
+                            'rgb(220, 53, 69)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '产品数量 | Количество продуктов'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '周转率类别 | Категория оборачиваемости'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.dataset.label || '';
+                                    var value = context.raw;
+                                    var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    var percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return label + ': ' + value + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}
